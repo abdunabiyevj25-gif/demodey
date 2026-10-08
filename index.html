@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Uber demo</title>
+
+  <!-- Tailwind CDN orqali ulanadi -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    html { scroll-behavior: smooth; }
+    body { background: #ffffff; color: #000000; font-family: Arial, Helvetica, sans-serif; }
+    :root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+
+    /* ===== Tun rejimi (body ga "tun" klassi qo'shilganda ishlaydi) ===== */
+    body.tun { background: #0d0d0d; color: #f1f1f1; }
+    body.tun .bg-white { background: #1c1c1c !important; }
+    body.tun .bg-gray-100 { background: #262626 !important; }
+    body.tun .bg-gray-200 { background: #333333 !important; }
+    body.tun .text-black { color: #f1f1f1 !important; }
+    body.tun .text-gray-500, body.tun .text-gray-600 { color: #aaaaaa !important; }
+    body.tun .border-gray-200 { border-color: #333333 !important; }
+    body.tun .border-black { border-color: #ffffff !important; }
+    body.tun .btn-asosiy { background: #ffffff !important; color: #000000 !important; }
+  </style>
+</head>
+
+<body class="bg-white text-black">
+
+  <!-- ===== 1. Yuqori menyu ===== -->
+  <header class="bg-black text-white sticky top-0 z-30">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+      <h1 class="text-2xl font-bold">Uber</h1>
+
+      <!-- Kompyuter uchun menyu -->
+      <nav class="hidden md:flex gap-6 text-sm">
+        <a href="#safar" class="hover:text-gray-300">Safar</a>
+        <a href="#tariflar" class="hover:text-gray-300">Tariflar</a>
+        <a href="#haydovchi" class="hover:text-gray-300">Haydovchi bo'lish</a>
+        <a href="#tarix" class="hover:text-gray-300">Tarix</a>
+        <a href="#savol" class="hover:text-gray-300">Savollar</a>
+        <a href="#aloqa" class="hover:text-gray-300">Aloqa</a>
+      </nav>
+
+      <div class="flex items-center gap-2 text-sm">
+        <button id="mavzuTugma" onclick="mavzuAlmashtirish()" class="px-3 py-2 rounded-full hover:bg-gray-800 text-lg" aria-label="Tun rejimi">🌙</button>
+        <a href="#" class="hidden sm:block px-4 py-2 rounded-full hover:bg-gray-800">Kirish</a>
+        <a href="#" class="btn-asosiy hidden sm:block px-4 py-2 rounded-full bg-white text-black font-semibold hover:bg-gray-200">Ro'yxatdan o'tish</a>
+        <!-- Telefon uchun menyu tugmasi -->
+        <button onclick="menuOchish()" class="md:hidden text-2xl px-2" aria-label="Menyu">☰</button>
+      </div>
+    </div>
+
+    <!-- Telefon uchun menyu (avval yashirin) -->
+    <div id="mobilMenu" class="hidden md:hidden bg-gray-900 px-4 py-3 space-y-3 text-sm">
+      <a href="#safar" onclick="menuOchish()" class="block">Safar</a>
+      <a href="#tariflar" onclick="menuOchish()" class="block">Tariflar</a>
+      <a href="#haydovchi" onclick="menuOchish()" class="block">Haydovchi bo'lish</a>
+      <a href="#tarix" onclick="menuOchish()" class="block">Tarix</a>
+      <a href="#savol" onclick="menuOchish()" class="block">Savollar</a>
+      <a href="#aloqa" onclick="menuOchish()" class="block">Aloqa</a>
+    </div>
+  </header>
+
+  <!-- ===== 2. Asosiy qism (hero) ===== -->
+  <section id="safar" class="bg-gradient-to-br from-black via-gray-900 to-gray-700 text-white">
+    <div class="max-w-6xl mx-auto px-4 py-12 md:py-16 grid md:grid-cols-2 gap-10 items-start">
+
+      <!-- Chap tomon: matn va xarita -->
+      <div>
+        <p class="inline-block bg-green-500 text-black text-sm font-semibold px-3 py-1 rounded-full mb-4">Toshkentda 24/7 ishlaydi</p>
+        <h2 class="text-4xl md:text-6xl font-bold leading-tight">Istalgan joyga tez va oson boring</h2>
+        <p class="mt-4 text-gray-300 text-lg">Mashinani bir necha soniyada chaqiring. Narx oldindan ma'lum.</p>
+
+        <!-- Mashhur manzillar -->
+        <p class="mt-8 text-sm text-gray-400">Mashhur manzillar (bosing):</p>
+        <div class="flex flex-wrap gap-2 mt-2">
+          <button onclick="manzilQoyish('Toshkent aeroporti')" class="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-full text-sm">✈️ Aeroport</button>
+          <button onclick="manzilQoyish('Chorsu bozori')" class="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-full text-sm">🛒 Chorsu</button>
+          <button onclick="manzilQoyish('Magic City')" class="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-full text-sm">🎡 Magic City</button>
+          <button onclick="manzilQoyish('Toshkent vokzali')" class="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-full text-sm">🚆 Vokzal</button>
+        </div>
+
+        <!-- Oddiy xarita: mashina sizga yaqinlashadi -->
+        <div class="mt-8 bg-gray-800 rounded-3xl p-3">
+          <svg viewBox="0 0 400 200" class="w-full rounded-2xl" style="background:#1f2937;">
+            <!-- ko'chalar -->
+            <line x1="0" y1="60" x2="400" y2="60" stroke="#374151" stroke-width="10"/>
+            <line x1="0" y1="140" x2="400" y2="140" stroke="#374151" stroke-width="10"/>
+            <line x1="100" y1="0" x2="100" y2="200" stroke="#374151" stroke-width="10"/>
+            <line x1="260" y1="0" x2="260" y2="200" stroke="#374151" stroke-width="10"/>
+            <!-- mashina yo'li -->
+            <line x1="40" y1="40" x2="330" y2="160" stroke="#22c55e" stroke-width="3" stroke-dasharray="8 6"/>
+            <!-- siz turgan joy -->
+            <text x="330" y="165" font-size="30" text-anchor="middle">📍</text>
+            <!-- mashina -->
+            <text id="mashina" x="40" y="45" font-size="28" text-anchor="middle">🚕</text>
+          </svg>
+          <p id="xaritaYozuv" class="text-sm text-gray-400 text-center mt-2">Buyurtma bering, mashina shu yerda ko'rinadi.</p>
+        </div>
+      </div>
+
+      <!-- O'ng tomon: buyurtma kartasi -->
+      <div class="bg-white text-black rounded-3xl p-6 shadow-2xl">
+        <h3 class="text-xl font-bold mb-4">Safarni buyurtma qiling</h3>
+
+        <input id="qayerdan" type="text" value="Amir Temur xiyoboni"
+          class="w-full bg-gray-100 rounded-xl px-4 py-3 mb-3 outline-none focus:ring-2 focus:ring-black"
+          placeholder="Qayerdan?">
+
+        <input id="qayerga" type="text" value="Toshkent aeroporti"
+          class="w-full bg-gray-100 rounded-xl px-4 py-3 mb-2 outline-none focus:ring-2 focus:ring-black"
+          placeholder="Qayerga?">
+
+        <!-- Sevimli manzillar -->
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-sm text-gray-600">Sevimli manzillar</span>
+          <button onclick="sevimliSaqlash()" class="text-sm font-semibold text-green-600">⭐ Saqlash</button>
+        </div>
+        <div id="sevimliJoy" class="flex flex-wrap gap-2 mb-4"></div>
+
+        <!-- Masofa -->
+        <label class="text-sm text-gray-600">Masofa: <b id="kmYozuv">12 km</b></label>
+        <input id="km" type="range" min="1" max="50" value="12" oninput="narxHisoblash()" class="w-full">
+        <p id="vaqtTaxmin" class="text-sm text-gray-500 mb-4"></p>
+
+        <!-- Hozir yoki keyinroq -->
+        <div class="flex gap-2 mb-2">
+          <button id="vaqt-hozir" onclick="vaqtTanlash('hozir')" class="vaqtTugma flex-1 border-2 border-black bg-gray-100 rounded-xl py-2 font-semibold">🚖 Hozir</button>
+          <button id="vaqt-keyin" onclick="vaqtTanlash('keyin')" class="vaqtTugma flex-1 border-2 border-transparent bg-gray-100 rounded-xl py-2 font-semibold">⏰ Keyinroq</button>
+        </div>
+        <input id="vaqtInput" type="time" class="hidden w-full bg-gray-100 rounded-xl px-4 py-3 mb-3 outline-none">
+        <div class="mb-2"></div>
+
+        <!-- Safar turlari -->
+        <button id="tur-x" onclick="tarifTanlash('x')"
+          class="tur w-full flex justify-between items-center border-2 border-black bg-gray-100 rounded-xl px-4 py-3 mb-2 text-left">
+          <span><b>UberX</b><br><span class="text-sm text-gray-500">Arzon, 4 kishilik</span></span>
+          <b id="narx-x"></b>
+        </button>
+
+        <button id="tur-comfort" onclick="tarifTanlash('comfort')"
+          class="tur w-full flex justify-between items-center border-2 border-transparent bg-gray-100 rounded-xl px-4 py-3 mb-2 text-left">
+          <span><b>Comfort</b><br><span class="text-sm text-gray-500">Keng va qulay salon</span></span>
+          <b id="narx-comfort"></b>
+        </button>
+
+        <button id="tur-xl" onclick="tarifTanlash('xl')"
+          class="tur w-full flex justify-between items-center border-2 border-transparent bg-gray-100 rounded-xl px-4 py-3 mb-4 text-left">
+          <span><b>UberXL</b><br><span class="text-sm text-gray-500">6 kishilik</span></span>
+          <b id="narx-xl"></b>
+        </button>
+
+        <!-- To'lov usuli -->
+        <label class="text-sm text-gray-600">To'lov usuli</label>
+        <select id="tolov" class="w-full bg-gray-100 rounded-xl px-4 py-3 mb-3 outline-none">
+          <option>💵 Naqd pul</option>
+          <option>💳 Humo / Uzcard</option>
+          <option>📱 Payme</option>
+          <option>📱 Click</option>
+        </select>
+
+        <!-- Promokod -->
+        <div class="flex gap-2 mb-1">
+          <input id="promo" type="text" placeholder="Promokod (UZ10)"
+            class="flex-1 bg-gray-100 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-black">
+          <button onclick="promoTekshir()" class="bg-gray-200 hover:bg-gray-300 px-4 rounded-xl font-semibold">Qo'llash</button>
+        </div>
+        <p id="promoXabar" class="text-sm min-h-[20px] mb-2"></p>
+
+        <!-- Jami narx -->
+        <div class="flex justify-between items-center mb-3">
+          <span class="text-gray-600">Jami:</span>
+          <span id="jami" class="text-2xl font-bold"></span>
+        </div>
+
+        <button onclick="buyurtma()"
+          class="btn-asosiy w-full bg-black text-white font-bold py-4 rounded-xl hover:bg-gray-800 transition">
+          Buyurtma berish
+        </button>
+
+        <p id="xabar" class="mt-3 text-center text-sm text-red-600 font-semibold min-h-[20px]"></p>
+
+        <!-- Buyurtma holati -->
+        <div id="holat" class="hidden mt-2 bg-gray-100 rounded-2xl p-4">
+          <p id="holatSarlavha" class="font-bold"></p>
+          <p id="haydovchiMalumot" class="mt-2 text-sm"></p>
+          <p id="sanoq" class="mt-2 text-green-600 font-semibold"></p>
+
+          <!-- Haydovchi bilan aloqa -->
+          <div id="amallar" class="hidden mt-3 flex flex-wrap gap-2 text-sm">
+            <button onclick="xabarYuborish('Men tayyorman')" class="bg-white px-3 py-2 rounded-full shadow">💬 Men tayyorman</button>
+            <button onclick="xabarYuborish('5 daqiqa kuting')" class="bg-white px-3 py-2 rounded-full shadow">💬 5 daqiqa kuting</button>
+            <button onclick="qongiroq()" class="bg-white px-3 py-2 rounded-full shadow">📞 Qo'ng'iroq</button>
+            <button onclick="sos()" class="bg-red-600 text-white px-3 py-2 rounded-full shadow">🚨 SOS</button>
+          </div>
+
+          <button id="bekorTugma" onclick="bekorQilish()" class="mt-3 text-sm text-red-600 font-semibold">Bekor qilish</button>
+
+          <!-- Baholash -->
+          <div id="bahoBlok" class="hidden mt-3">
+            <p class="font-semibold text-sm mb-1">Haydovchini baholang:</p>
+            <div class="flex gap-1 text-4xl">
+              <button id="yulduz1" onclick="bahoQoyish(1)" class="text-gray-300">★</button>
+              <button id="yulduz2" onclick="bahoQoyish(2)" class="text-gray-300">★</button>
+              <button id="yulduz3" onclick="bahoQoyish(3)" class="text-gray-300">★</button>
+              <button id="yulduz4" onclick="bahoQoyish(4)" class="text-gray-300">★</button>
+              <button id="yulduz5" onclick="bahoQoyish(5)" class="text-gray-300">★</button>
+            </div>
+            <select id="choyPuli" class="w-full bg-white rounded-xl px-4 py-2 mt-2 outline-none">
+              <option value="0">Choy puli yo'q</option>
+              <option value="2000">Choy puli: 2 000 so'm</option>
+              <option value="5000">Choy puli: 5 000 so'm</option>
+              <option value="10000">Choy puli: 10 000 so'm</option>
+            </select>
+            <button onclick="bahoYuborish()" class="mt-2 bg-green-500 text-black font-bold px-4 py-2 rounded-xl hover:bg-green-400">Yuborish</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===== 3. Raqamlar ===== -->
+  <section class="max-w-6xl mx-auto px-4 py-12 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+    <div><p class="text-4xl font-bold">5 daq</p><p class="text-gray-500">o'rtacha kutish</p></div>
+    <div><p class="text-4xl font-bold">10 000+</p><p class="text-gray-500">haydovchi</p></div>
+    <div><p class="text-4xl font-bold">4.9</p><p class="text-gray-500">o'rtacha baho</p></div>
+    <div><p class="text-4xl font-bold">24/7</p><p class="text-gray-500">xizmat</p></div>
+  </section>
+
+  <!-- ===== 4. Xizmatlar ===== -->
+  <section class="bg-gray-100 py-14">
+    <div class="max-w-6xl mx-auto px-4">
+      <h2 class="text-3xl font-bold mb-8">Bizning xizmatlar</h2>
+
+      <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+
+        <div class="bg-white rounded-3xl p-6 shadow hover:shadow-xl hover:-translate-y-1 transition">
+          <div class="text-5xl mb-4">🚗</div>
+          <h3 class="text-xl font-bold">Safar</h3>
+          <p class="text-gray-500 mt-2">Shahar bo'ylab tez va xavfsiz yuring.</p>
+        </div>
+
+        <div class="bg-white rounded-3xl p-6 shadow hover:shadow-xl hover:-translate-y-1 transition">
+          <div class="text-5xl mb-4">🍔</div>
+          <h3 class="text-xl font-bold">Yetkazib berish</h3>
+          <p class="text-gray-500 mt-2">Taom va mahsulotlar eshigingizgacha.</p>
+        </div>
+
+        <div class="bg-white rounded-3xl p-6 shadow hover:shadow-xl hover:-translate-y-1 transition">
+          <div class="text-5xl mb-4">📦</div>
+          <h3 class="text-xl font-bold">Pochta</h3>
+          <p class="text-gray-500 mt-2">Paketlarni shahar ichida bir soatda jo'nating.</p>
+        </div>
+
+        <div class="bg-white rounded-3xl p-6 shadow hover:shadow-xl hover:-translate-y-1 transition">
+          <div class="text-5xl mb-4">✈️</div>
+          <h3 class="text-xl font-bold">Aeroport transferi</h3>
+          <p class="text-gray-500 mt-2">Reysga kechikmasdan, belgilangan narxda.</p>
+        </div>
+
+        <div class="bg-white rounded-3xl p-6 shadow hover:shadow-xl hover:-translate-y-1 transition">
+          <div class="text-5xl mb-4">⏰</div>
+          <h3 class="text-xl font-bold">Oldindan buyurtma</h3>
+          <p class="text-gray-500 mt-2">Safarni kerakli vaqtga oldindan rejalashtiring.</p>
+        </div>
+
+        <div class="bg-white rounded-3xl p-6 shadow hover:shadow-xl hover:-translate-y-1 transition">
+          <div class="text-5xl mb-4">💼</div>
+          <h3 class="text-xl font-bold">Biznes uchun</h3>
+          <p class="text-gray-500 mt-2">Xodimlar safarini bitta joydan boshqaring.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 5. Qanday ishlaydi ===== -->
+  <section class="max-w-6xl mx-auto px-4 py-14">
+    <h2 class="text-3xl font-bold mb-8">Qanday ishlaydi?</h2>
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="border-2 border-gray-200 rounded-3xl p-6">
+        <p class="text-sm font-bold text-green-600">1-qadam</p>
+        <h3 class="text-xl font-bold mt-1">Manzilni kiriting</h3>
+        <p class="text-gray-500 mt-2">Qayerdan va qayerga borishingizni yozing.</p>
+      </div>
+      <div class="border-2 border-gray-200 rounded-3xl p-6">
+        <p class="text-sm font-bold text-green-600">2-qadam</p>
+        <h3 class="text-xl font-bold mt-1">Tarifni tanlang</h3>
+        <p class="text-gray-500 mt-2">Narxni ko'ring va o'zingizga mosini tanlang.</p>
+      </div>
+      <div class="border-2 border-gray-200 rounded-3xl p-6">
+        <p class="text-sm font-bold text-green-600">3-qadam</p>
+        <h3 class="text-xl font-bold mt-1">Haydovchini kuting</h3>
+        <p class="text-gray-500 mt-2">Haydovchi sizni manzildan olib ketadi.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 6. Tariflar jadvali ===== -->
+  <section id="tariflar" class="bg-gray-100 py-14">
+    <div class="max-w-6xl mx-auto px-4">
+      <h2 class="text-3xl font-bold mb-8">Tariflar</h2>
+
+      <div class="overflow-x-auto bg-white rounded-3xl shadow">
+        <table class="w-full text-left">
+          <thead class="bg-black text-white">
+            <tr>
+              <th class="px-4 py-3">Tarif</th>
+              <th class="px-4 py-3">O'rinlar</th>
+              <th class="px-4 py-3">Boshlang'ich</th>
+              <th class="px-4 py-3">1 km</th>
+              <th class="px-4 py-3">Kutish</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b"><td class="px-4 py-3 font-bold">UberX</td><td class="px-4 py-3">4</td><td class="px-4 py-3">5 000 so'm</td><td class="px-4 py-3">2 200 so'm</td><td class="px-4 py-3">3 daq</td></tr>
+            <tr class="border-b"><td class="px-4 py-3 font-bold">Comfort</td><td class="px-4 py-3">4</td><td class="px-4 py-3">7 000 so'm</td><td class="px-4 py-3">3 000 so'm</td><td class="px-4 py-3">5 daq</td></tr>
+            <tr><td class="px-4 py-3 font-bold">UberXL</td><td class="px-4 py-3">6</td><td class="px-4 py-3">9 000 so'm</td><td class="px-4 py-3">3 800 so'm</td><td class="px-4 py-3">7 daq</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 7. Haydovchi daromadi ===== -->
+  <section id="haydovchi" class="max-w-6xl mx-auto px-4 py-14">
+    <div class="grid md:grid-cols-2 gap-10 items-center">
+      <div>
+        <h2 class="text-3xl md:text-4xl font-bold">Haydovchi bo'ling va daromad qiling</h2>
+        <p class="text-gray-500 mt-3">O'zingiz xohlagan vaqtda ishlang. Slayderlarni suring va taxminiy daromadni ko'ring.</p>
+
+        <label class="block mt-6 text-sm text-gray-600">Kuniga ishlash soati: <b id="soatYozuv">6</b></label>
+        <input id="soat" type="range" min="1" max="12" value="6" oninput="daromadHisoblash()" class="w-full">
+
+        <label class="block mt-4 text-sm text-gray-600">Haftasiga ish kunlari: <b id="kunYozuv">5</b></label>
+        <input id="kun" type="range" min="1" max="7" value="5" oninput="daromadHisoblash()" class="w-full">
+      </div>
+
+      <div class="bg-black text-white rounded-3xl p-8 text-center">
+        <p class="text-gray-400">Taxminiy haftalik daromad</p>
+        <p id="daromad" class="text-4xl md:text-5xl font-bold mt-2"></p>
+        <p class="text-gray-400 text-sm mt-2">Oylik: <b id="daromadOylik"></b></p>
+        <p class="text-xs text-gray-500 mt-2">Soatiga o'rtacha 45 000 so'm hisobida (faqat namuna)</p>
+        <a href="#aloqa" class="inline-block mt-6 bg-white text-black font-bold px-6 py-3 rounded-full hover:bg-gray-200">Ariza qoldirish</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 8. Safarlar tarixi ===== -->
+  <section id="tarix" class="bg-gray-100 py-14">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-3xl font-bold">Safarlar tarixi</h2>
+        <button onclick="tarixTozalash()" class="text-sm text-red-600 font-semibold">Tozalash</button>
+      </div>
+
+      <!-- Statistika -->
+      <div class="grid grid-cols-3 gap-3 mb-6 text-center">
+        <div class="bg-white rounded-2xl p-4 shadow">
+          <p id="statSafar" class="text-2xl md:text-3xl font-bold">0</p>
+          <p class="text-sm text-gray-500">safar</p>
+        </div>
+        <div class="bg-white rounded-2xl p-4 shadow">
+          <p id="statSarf" class="text-lg md:text-3xl font-bold">0 so'm</p>
+          <p class="text-sm text-gray-500">jami sarf</p>
+        </div>
+        <div class="bg-white rounded-2xl p-4 shadow">
+          <p id="statBaho" class="text-2xl md:text-3xl font-bold">—</p>
+          <p class="text-sm text-gray-500">o'rtacha baho</p>
+        </div>
+      </div>
+
+      <div id="tarixRoyxat" class="space-y-3"></div>
+      <p class="text-sm text-gray-500 mt-4">Tarix shu brauzerda saqlanadi.</p>
+    </div>
+  </section>
+
+  <!-- ===== 9. Fikrlar ===== -->
+  <section class="max-w-6xl mx-auto px-4 py-14">
+    <h2 class="text-3xl font-bold mb-8">Mijozlar fikri</h2>
+    <div class="grid md:grid-cols-3 gap-6">
+
+      <div class="bg-gray-100 rounded-3xl p-6">
+        <p class="text-yellow-500 text-xl">★★★★★</p>
+        <p class="mt-2">"Aeroportga kechikmasdan yetib bordim. Haydovchi juda xushmuomala edi."</p>
+        <p class="mt-4 font-bold">Dilnoza</p>
+      </div>
+
+      <div class="bg-gray-100 rounded-3xl p-6">
+        <p class="text-yellow-500 text-xl">★★★★★</p>
+        <p class="mt-2">"Narx oldindan ma'lum bo'lgani juda qulay. Hech qanday kutilmagan to'lov yo'q."</p>
+        <p class="mt-4 font-bold">Sardor</p>
+      </div>
+
+      <div class="bg-gray-100 rounded-3xl p-6">
+        <p class="text-yellow-500 text-xl">★★★★☆</p>
+        <p class="mt-2">"Kechasi ham mashina tez topiladi. Xavfsizlik tugmasi menga ishonch beradi."</p>
+        <p class="mt-4 font-bold">Madina</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===== 10. Do'stni taklif qilish ===== -->
+  <section class="max-w-6xl mx-auto px-4 pb-14">
+    <div class="bg-green-500 text-black rounded-3xl p-8 md:p-12 flex flex-wrap items-center justify-between gap-6">
+      <div>
+        <h2 class="text-3xl md:text-4xl font-bold">Do'stingizni taklif qiling</h2>
+        <p class="mt-2">Do'stingiz promokodni kiritsa, u 10% chegirma oladi.</p>
+      </div>
+      <div class="text-center">
+        <p class="text-4xl font-bold tracking-widest">UZ10</p>
+        <button onclick="kodNusxalash()" class="mt-3 bg-black text-white font-bold px-6 py-3 rounded-full hover:bg-gray-800">Nusxalash</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 11. Xavfsizlik ===== -->
+  <section class="max-w-6xl mx-auto px-4 pb-14">
+    <div class="bg-black text-white rounded-3xl p-8 md:p-12 grid md:grid-cols-2 gap-8 items-center">
+      <div>
+        <h2 class="text-3xl md:text-4xl font-bold">Xavfsizlik birinchi o'rinda</h2>
+        <p class="text-gray-300 mt-3">Safaringizni yaqinlaringiz bilan ulashing va kerak bo'lsa tezda yordam chaqiring.</p>
+      </div>
+      <div class="space-y-3">
+        <div class="bg-gray-800 rounded-xl px-4 py-3">✅ Safarni ulashish</div>
+        <div class="bg-gray-800 rounded-xl px-4 py-3">🚨 Favqulodda yordam tugmasi</div>
+        <div class="bg-gray-800 rounded-xl px-4 py-3">🪪 Haydovchi tekshiriladi</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 12. Ko'p so'raladigan savollar ===== -->
+  <section id="savol" class="bg-gray-100 py-14">
+    <div class="max-w-3xl mx-auto px-4">
+      <h2 class="text-3xl font-bold mb-8">Ko'p so'raladigan savollar</h2>
+
+      <details class="bg-white rounded-2xl p-5 mb-3 shadow">
+        <summary class="font-bold cursor-pointer">Buyurtmani bekor qilsam pul olinadimi?</summary>
+        <p class="mt-3 text-gray-600">Haydovchi yetib kelmaguncha bekor qilish bepul.</p>
+      </details>
+
+      <details class="bg-white rounded-2xl p-5 mb-3 shadow">
+        <summary class="font-bold cursor-pointer">Qanday to'lov usullari bor?</summary>
+        <p class="mt-3 text-gray-600">Naqd pul, Humo, Uzcard, Payme va Click orqali to'lash mumkin.</p>
+      </details>
+
+      <details class="bg-white rounded-2xl p-5 mb-3 shadow">
+        <summary class="font-bold cursor-pointer">Promokodni qanday ishlataman?</summary>
+        <p class="mt-3 text-gray-600">Buyurtma kartasidagi promokod maydoniga kodni yozing. Sinab ko'rish uchun UZ10 kodini kiriting.</p>
+      </details>
+
+      <details class="bg-white rounded-2xl p-5 mb-3 shadow">
+        <summary class="font-bold cursor-pointer">Safarni oldindan buyurtma qila olamanmi?</summary>
+        <p class="mt-3 text-gray-600">Ha. "Keyinroq" tugmasini bosing va kerakli vaqtni tanlang.</p>
+      </details>
+
+      <details class="bg-white rounded-2xl p-5 shadow">
+        <summary class="font-bold cursor-pointer">Haydovchi bo'lish uchun nima kerak?</summary>
+        <p class="mt-3 text-gray-600">Haydovchilik guvohnomasi, avtomobil hujjatlari va telefon yetarli.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- ===== 13. Aloqa formasi ===== -->
+  <section id="aloqa" class="max-w-3xl mx-auto px-4 py-14">
+    <h2 class="text-3xl font-bold mb-2">Biz bilan bog'laning</h2>
+    <p class="text-gray-500 mb-6">Savol, taklif yoki haydovchi bo'lish uchun ariza yozing.</p>
+
+    <input id="aloqaIsm" type="text" placeholder="Ismingiz" class="w-full bg-gray-100 rounded-xl px-4 py-3 mb-3 outline-none focus:ring-2 focus:ring-black">
+    <input id="aloqaTel" type="text" placeholder="Telefon raqamingiz" class="w-full bg-gray-100 rounded-xl px-4 py-3 mb-3 outline-none focus:ring-2 focus:ring-black">
+    <textarea id="aloqaXabar" rows="4" placeholder="Xabaringiz" class="w-full bg-gray-100 rounded-xl px-4 py-3 mb-3 outline-none focus:ring-2 focus:ring-black"></textarea>
+    <button onclick="aloqaYuborish()" class="btn-asosiy bg-black text-white font-bold px-8 py-3 rounded-xl hover:bg-gray-800">Yuborish</button>
+  </section>
+
+  <!-- ===== 14. Ilovani yuklab olish ===== -->
+  <section class="max-w-6xl mx-auto px-4 pb-14 text-center">
+    <h2 class="text-3xl md:text-4xl font-bold">Ilovani yuklab oling</h2>
+    <p class="text-gray-500 mt-3">Safarni telefoningizdan bir bosishda buyurtma qiling.</p>
+    <div class="flex flex-wrap justify-center gap-4 mt-6">
+      <a href="#" class="bg-black text-white px-6 py-3 rounded-xl font-semibold hover:bg-gray-800">📱 App Store</a>
+      <a href="#" class="bg-black text-white px-6 py-3 rounded-xl font-semibold hover:bg-gray-800">🤖 Google Play</a>
+    </div>
+  </section>
+
+  <!-- ===== 15. Pastki qism ===== -->
+  <footer class="bg-black text-gray-400 text-sm">
+    <div class="max-w-6xl mx-auto px-4 py-10 grid grid-cols-2 md:grid-cols-4 gap-6">
+      <div>
+        <p class="text-white font-bold text-xl">Uber</p>
+        <p class="mt-2">Bu faqat o'quv demo loyiha.</p>
+      </div>
+      <div>
+        <p class="text-white font-bold mb-2">Kompaniya</p>
+        <p>Biz haqimizda</p><p>Karyera</p><p>Yangiliklar</p>
+      </div>
+      <div>
+        <p class="text-white font-bold mb-2">Mahsulotlar</p>
+        <p>Safar</p><p>Yetkazib berish</p><p>Biznes</p>
+      </div>
+      <div>
+        <p class="text-white font-bold mb-2">Aloqa</p>
+        <p>+998 71 000 00 00</p><p>info@demo.uz</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Tepaga chiqish tugmasi -->
+  <button onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
+    class="fixed right-4 bottom-4 bg-green-500 text-black w-12 h-12 rounded-full text-xl font-bold shadow-lg hover:bg-green-400"
+    aria-label="Tepaga">↑</button>
+
+  <!-- Qisqa xabar (toast) -->
+  <div id="toast" class="hidden fixed left-1/2 bottom-20 bg-black text-white border border-gray-600 px-5 py-3 rounded-full shadow-lg z-50 text-sm"
+       style="transform: translateX(-50%); max-width: 90%;"></div>
+
+
+  <!-- ===== JavaScript (oddiy) ===== -->
+  <script>
+    // ----- Tarif ma'lumotlari -----
+    var tariflar = {
+      x:       { nom: "UberX",   boshlangich: 5000, kmNarxi: 2200 },
+      comfort: { nom: "Comfort", boshlangich: 7000, kmNarxi: 3000 },
+      xl:      { nom: "UberXL",  boshlangich: 9000, kmNarxi: 3800 }
+    };
+
+    var tanlanganTarif = "x";   // hozir tanlangan tarif
+    var promoBor = false;       // promokod ishlatildimi
+    var jamiNarx = 0;           // hisoblangan narx
+    var safarVaqti = "hozir";   // "hozir" yoki "keyin"
+    var tanlanganBaho = 0;      // yulduzchalar soni
+
+    var haydovchilar = [
+      { ism: "Jasur",   mashina: "Chevrolet Gentra", raqam: "01 A 123 BC", baho: "4.9" },
+      { ism: "Bobur",   mashina: "Chevrolet Cobalt", raqam: "01 B 456 CD", baho: "4.8" },
+      { ism: "Aziz",    mashina: "Kia K5",           raqam: "10 C 789 EF", baho: "5.0" },
+      { ism: "Otabek",  mashina: "Chevrolet Malibu", raqam: "01 D 321 GH", baho: "4.7" }
+    ];
+
+    var tarix = [];                                  // safarlar tarixi
+    var sevimlilar = ["Uy: Chilonzor", "Ish: Yunusobod"];   // saqlangan manzillar
+    var qidiruvTimer;
+    var sanoqTimer;
+    var toastTimer;
+    var qolgan = 0;
+
+
+    // ----- Yordamchi funksiyalar -----
+
+    // pulni chiroyli yozish: 38000 -> "38 000 so'm"
+    function pul(son) {
+      var matn = Math.round(son).toString();
+      return matn.replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " so'm";
+    }
+
+    // foydalanuvchi yozgan matndagi < va > belgilarini zararsiz qilish
+    function xavfsiz(matn) {
+      return String(matn).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    // qisqa xabar ko'rsatish
+    function toast(matn) {
+      var el = document.getElementById("toast");
+      el.innerText = matn;
+      el.classList.remove("hidden");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function () {
+        el.classList.add("hidden");
+      }, 2500);
+    }
+
+
+    // ----- Brauzerda saqlash (xato bo'lsa ham dastur to'xtamaydi) -----
+    function saqlash() {
+      try {
+        localStorage.setItem("uberTarix", JSON.stringify(tarix));
+        localStorage.setItem("uberSevimli", JSON.stringify(sevimlilar));
+      } catch (e) {
+        // saqlab bo'lmasa, hech narsa qilmaymiz
+      }
+    }
+
+    function yuklash() {
+      try {
+        var t = localStorage.getItem("uberTarix");
+        if (t) { tarix = JSON.parse(t); }
+
+        var s = localStorage.getItem("uberSevimli");
+        if (s) { sevimlilar = JSON.parse(s); }
+
+        if (localStorage.getItem("uberMavzu") == "tun") {
+          document.body.classList.add("tun");
+          document.getElementById("mavzuTugma").innerText = "☀️";
+        }
+      } catch (e) {
+        // o'qib bo'lmasa, boshlang'ich qiymatlar qoladi
+      }
+    }
+
+
+    // ----- Tun / kun rejimi -----
+    function mavzuAlmashtirish() {
+      document.body.classList.toggle("tun");
+      var tun = document.body.classList.contains("tun");
+
+      if (tun) {
+        document.getElementById("mavzuTugma").innerText = "☀️";
+      } else {
+        document.getElementById("mavzuTugma").innerText = "🌙";
+      }
+
+      try {
+        if (tun) { localStorage.setItem("uberMavzu", "tun"); }
+        else { localStorage.setItem("uberMavzu", "kun"); }
+      } catch (e) {}
+    }
+
+
+    // ----- Telefon menyusini ochish/yopish -----
+    function menuOchish() {
+      document.getElementById("mobilMenu").classList.toggle("hidden");
+    }
+
+
+    // ----- Mashhur manzilni "Qayerga" maydoniga yozish -----
+    function manzilQoyish(manzil) {
+      document.getElementById("qayerga").value = manzil;
+      document.getElementById("safar").scrollIntoView();
+    }
+
+
+    // ----- Sevimli manzillar -----
+    function sevimliChiz() {
+      var joy = document.getElementById("sevimliJoy");
+
+      if (sevimlilar.length == 0) {
+        joy.innerHTML = "<span class='text-sm text-gray-500'>Hozircha yo'q</span>";
+        return;
+      }
+
+      var matn = "";
+      for (var i = 0; i < sevimlilar.length; i++) {
+        matn = matn +
+          "<span class='bg-gray-100 rounded-full pl-3 pr-1 py-1 text-sm flex items-center gap-1'>" +
+            "<button onclick='sevimliTanlash(" + i + ")'>" + xavfsiz(sevimlilar[i]) + "</button>" +
+            "<button onclick='sevimliOchirish(" + i + ")' class='text-gray-500 hover:text-red-600 px-1' aria-label='O&#39;chirish'>×</button>" +
+          "</span>";
+      }
+      joy.innerHTML = matn;
+    }
+
+    function sevimliSaqlash() {
+      var manzil = document.getElementById("qayerga").value.trim();
+
+      if (manzil == "") {
+        toast("Avval 'Qayerga' maydoniga manzil yozing");
+        return;
+      }
+      if (sevimlilar.indexOf(manzil) != -1) {
+        toast("Bu manzil allaqachon saqlangan");
+        return;
+      }
+
+      sevimlilar.push(manzil);
+      sevimliChiz();
+      saqlash();
+      toast("⭐ Manzil saqlandi");
+    }
+
+    function sevimliTanlash(i) {
+      document.getElementById("qayerga").value = sevimlilar[i];
+    }
+
+    function sevimliOchirish(i) {
+      sevimlilar.splice(i, 1);
+      sevimliChiz();
+      saqlash();
+    }
+
+
+    // ----- Narxni hisoblash -----
+    function narxHisoblash() {
+      var km = document.getElementById("km").value;
+      document.getElementById("kmYozuv").innerText = km + " km";
+      document.getElementById("vaqtTaxmin").innerText = "Taxminiy yo'l vaqti: ~" + Math.round(km * 2.5) + " daqiqa";
+
+      // uchala tarif narxini yangilaymiz
+      for (var kalit in tariflar) {
+        var t = tariflar[kalit];
+        var narx = t.boshlangich + t.kmNarxi * km;
+        if (promoBor) {
+          narx = narx * 0.9;
+        }
+        narx = Math.round(narx / 100) * 100;
+        document.getElementById("narx-" + kalit).innerText = pul(narx);
+
+        if (kalit == tanlanganTarif) {
+          jamiNarx = narx;
+        }
+      }
+
+      document.getElementById("jami").innerText = pul(jamiNarx);
+    }
+
+
+    // ----- Tarifni tanlash -----
+    function tarifTanlash(kalit) {
+      tanlanganTarif = kalit;
+
+      // hamma tugmadan qora chegarani olib tashlaymiz
+      for (var k in tariflar) {
+        document.getElementById("tur-" + k).classList.remove("border-black");
+        document.getElementById("tur-" + k).classList.add("border-transparent");
+      }
+
+      // bosilganiga qora chegara beramiz
+      document.getElementById("tur-" + kalit).classList.remove("border-transparent");
+      document.getElementById("tur-" + kalit).classList.add("border-black");
+
+      narxHisoblash();
+    }
+
+
+    // ----- Hozir yoki keyinroq -----
+    function vaqtTanlash(tur) {
+      safarVaqti = tur;
+
+      document.getElementById("vaqt-hozir").classList.remove("border-black");
+      document.getElementById("vaqt-hozir").classList.add("border-transparent");
+      document.getElementById("vaqt-keyin").classList.remove("border-black");
+      document.getElementById("vaqt-keyin").classList.add("border-transparent");
+
+      document.getElementById("vaqt-" + tur).classList.remove("border-transparent");
+      document.getElementById("vaqt-" + tur).classList.add("border-black");
+
+      if (tur == "keyin") {
+        document.getElementById("vaqtInput").classList.remove("hidden");
+      } else {
+        document.getElementById("vaqtInput").classList.add("hidden");
+      }
+    }
+
+
+    // ----- Promokodni tekshirish -----
+    function promoTekshir() {
+      var kod = document.getElementById("promo").value.toUpperCase();
+      var xabar = document.getElementById("promoXabar");
+
+      if (kod == "UZ10") {
+        promoBor = true;
+        xabar.innerText = "✅ 10% chegirma qo'llandi!";
+        xabar.className = "text-sm min-h-[20px] mb-2 text-green-600";
+      } else {
+        promoBor = false;
+        xabar.innerText = "❌ Promokod noto'g'ri";
+        xabar.className = "text-sm min-h-[20px] mb-2 text-red-600";
+      }
+
+      narxHisoblash();
+    }
+
+
+    // ----- Mashinani xaritada yurgizish (p: 0 dan 1 gacha) -----
+    function mashinaYurgizish(p) {
+      var x = 40 + 290 * p;
+      var y = 45 + 120 * p;
+      var mashina = document.getElementById("mashina");
+      mashina.setAttribute("x", x);
+      mashina.setAttribute("y", y);
+    }
+
+
+    // ----- Holat blokini tozalash -----
+    function holatTozalash() {
+      document.getElementById("haydovchiMalumot").innerText = "";
+      document.getElementById("sanoq").innerText = "";
+      document.getElementById("amallar").classList.add("hidden");
+      document.getElementById("bahoBlok").classList.add("hidden");
+      document.getElementById("bekorTugma").classList.add("hidden");
+    }
+
+
+    // ----- Buyurtma berish -----
+    function buyurtma() {
+      var qayerdan = document.getElementById("qayerdan").value;
+      var qayerga = document.getElementById("qayerga").value;
+
+      if (qayerdan == "" || qayerga == "") {
+        document.getElementById("xabar").innerText = "Manzillarni kiriting!";
+        return;
+      }
+
+      // eski taymerlarni to'xtatamiz
+      clearTimeout(qidiruvTimer);
+      clearInterval(sanoqTimer);
+      mashinaYurgizish(0);
+
+      document.getElementById("holat").classList.remove("hidden");
+      holatTozalash();
+
+      // --- Keyinroq buyurtma ---
+      if (safarVaqti == "keyin") {
+        var v = document.getElementById("vaqtInput").value;
+
+        if (v == "") {
+          document.getElementById("xabar").innerText = "Safar vaqtini tanlang!";
+          document.getElementById("holat").classList.add("hidden");
+          return;
+        }
+        document.getElementById("xabar").innerText = "";
+
+        document.getElementById("holatSarlavha").innerText = "⏰ Safar soat " + v + " ga rejalashtirildi";
+        document.getElementById("xaritaYozuv").innerText = "Safar rejalashtirildi.";
+
+        tarix.unshift({
+          qayerdan: qayerdan,
+          qayerga: qayerga,
+          narx: jamiNarx,
+          tarif: tariflar[tanlanganTarif].nom,
+          tolov: document.getElementById("tolov").value,
+          haydovchi: "tez orada",
+          vaqt: v,
+          rejalashtirilgan: true,
+          baho: 0,
+          choy: 0
+        });
+        tarixChiz();
+        saqlash();
+        toast("⏰ Safar rejalashtirildi");
+        return;
+      }
+
+      // --- Hozirgi buyurtma ---
+      document.getElementById("xabar").innerText = "";
+      document.getElementById("holatSarlavha").innerText = "🔍 Haydovchi qidirilmoqda...";
+      document.getElementById("xaritaYozuv").innerText = "Haydovchi qidirilmoqda...";
+      document.getElementById("bekorTugma").classList.remove("hidden");
+
+      // 2 soniyadan keyin haydovchi topiladi
+      qidiruvTimer = setTimeout(haydovchiTopildi, 2000);
+    }
+
+
+    // ----- Haydovchi topildi -----
+    function haydovchiTopildi() {
+      var h = haydovchilar[Math.floor(Math.random() * haydovchilar.length)];
+
+      document.getElementById("holatSarlavha").innerText = "✅ Haydovchi topildi!";
+      document.getElementById("haydovchiMalumot").innerHTML =
+        "<b>" + h.ism + "</b> ⭐ " + h.baho + "<br>" + h.mashina + " · " + h.raqam;
+      document.getElementById("amallar").classList.remove("hidden");
+      document.getElementById("xaritaYozuv").innerText = h.ism + " sizga yaqinlashmoqda...";
+      toast("✅ Haydovchi topildi: " + h.ism);
+
+      qolgan = 10;
+      document.getElementById("sanoq").innerText = "Yetib keladi: " + qolgan + " soniya";
+
+      // har soniyada sanoqni kamaytiramiz va mashinani siljitamiz
+      sanoqTimer = setInterval(function () {
+        qolgan = qolgan - 1;
+        mashinaYurgizish((10 - qolgan) / 10);
+
+        if (qolgan <= 0) {
+          clearInterval(sanoqTimer);
+          yetibKeldi(h);
+        } else {
+          document.getElementById("sanoq").innerText = "Yetib keladi: " + qolgan + " soniya";
+        }
+      }, 1000);
+    }
+
+
+    // ----- Haydovchi yetib keldi -----
+    function yetibKeldi(h) {
+      document.getElementById("holatSarlavha").innerText = "🚕 Haydovchi yetib keldi!";
+      document.getElementById("sanoq").innerText = "Yaxshi yo'l!";
+      document.getElementById("xaritaYozuv").innerText = "Haydovchi yetib keldi.";
+      document.getElementById("bekorTugma").classList.add("hidden");
+      document.getElementById("amallar").classList.add("hidden");
+
+      var d = new Date();
+      var daqiqa = d.getMinutes();
+      if (daqiqa < 10) { daqiqa = "0" + daqiqa; }
+
+      // tarixga qo'shamiz (eng yangisi tepada)
+      tarix.unshift({
+        qayerdan: document.getElementById("qayerdan").value,
+        qayerga: document.getElementById("qayerga").value,
+        narx: jamiNarx,
+        tarif: tariflar[tanlanganTarif].nom,
+        tolov: document.getElementById("tolov").value,
+        haydovchi: h.ism,
+        vaqt: d.getHours() + ":" + daqiqa,
+        rejalashtirilgan: false,
+        baho: 0,
+        choy: 0
+      });
+      tarixChiz();
+      saqlash();
+
+      // baholash blokini ko'rsatamiz
+      bahoQoyish(0);
+      document.getElementById("choyPuli").value = "0";
+      document.getElementById("bahoBlok").classList.remove("hidden");
+    }
+
+
+    // ----- Buyurtmani bekor qilish -----
+    function bekorQilish() {
+      clearTimeout(qidiruvTimer);
+      clearInterval(sanoqTimer);
+      mashinaYurgizish(0);
+      holatTozalash();
+
+      document.getElementById("holatSarlavha").innerText = "❌ Buyurtma bekor qilindi";
+      document.getElementById("xaritaYozuv").innerText = "Buyurtma bekor qilindi.";
+    }
+
+
+    // ----- Haydovchi bilan aloqa -----
+    function xabarYuborish(matn) {
+      toast("💬 Haydovchiga yuborildi: " + matn);
+    }
+
+    function qongiroq() {
+      toast("📞 Haydovchiga qo'ng'iroq qilinmoqda...");
+    }
+
+    function sos() {
+      toast("🚨 Favqulodda xizmatga xabar yuborildi (demo)");
+    }
+
+
+    // ----- Haydovchini baholash -----
+    function bahoQoyish(n) {
+      tanlanganBaho = n;
+
+      for (var i = 1; i <= 5; i++) {
+        var yulduz = document.getElementById("yulduz" + i);
+        if (i <= n) {
+          yulduz.className = "text-yellow-500";
+        } else {
+          yulduz.className = "text-gray-300";
+        }
+      }
+    }
+
+    function bahoYuborish() {
+      if (tanlanganBaho == 0) {
+        toast("Avval yulduzchani tanlang");
+        return;
+      }
+
+      // eng oxirgi safarga baho va choy pulini yozamiz
+      tarix[0].baho = tanlanganBaho;
+      tarix[0].choy = Number(document.getElementById("choyPuli").value);
+
+      tarixChiz();
+      saqlash();
+      document.getElementById("bahoBlok").classList.add("hidden");
+      toast("Rahmat! Bahoyingiz qabul qilindi ⭐");
+    }
+
+
+    // ----- Tarixni ekranga chiqarish -----
+    function tarixChiz() {
+      var joy = document.getElementById("tarixRoyxat");
+
+      // statistika
+      var sarf = 0;
+      var bahoYigindi = 0;
+      var bahoSoni = 0;
+
+      for (var j = 0; j < tarix.length; j++) {
+        sarf = sarf + tarix[j].narx + tarix[j].choy;
+        if (tarix[j].baho > 0) {
+          bahoYigindi = bahoYigindi + tarix[j].baho;
+          bahoSoni = bahoSoni + 1;
+        }
+      }
+
+      document.getElementById("statSafar").innerText = tarix.length;
+      document.getElementById("statSarf").innerText = pul(sarf);
+
+      if (bahoSoni > 0) {
+        document.getElementById("statBaho").innerText = (bahoYigindi / bahoSoni).toFixed(1);
+      } else {
+        document.getElementById("statBaho").innerText = "—";
+      }
+
+      // ro'yxat
+      if (tarix.length == 0) {
+        joy.innerHTML = "<p class='bg-white rounded-2xl p-5 text-gray-500'>Hozircha safarlar yo'q. Yuqorida birinchi safarni buyurtma qiling.</p>";
+        return;
+      }
+
+      var matn = "";
+      for (var i = 0; i < tarix.length; i++) {
+        var s = tarix[i];
+
+        var qoshimcha = "";
+        if (s.rejalashtirilgan) { qoshimcha = " · ⏰ rejalashtirilgan"; }
+        if (s.baho > 0) { qoshimcha = qoshimcha + " · ⭐ " + s.baho; }
+        if (s.choy > 0) { qoshimcha = qoshimcha + " · choy puli " + pul(s.choy); }
+
+        matn = matn +
+          "<div class='bg-white rounded-2xl p-5 shadow flex flex-wrap justify-between gap-2'>" +
+            "<div>" +
+              "<p class='font-bold'>" + xavfsiz(s.qayerdan) + " → " + xavfsiz(s.qayerga) + "</p>" +
+              "<p class='text-sm text-gray-500'>" + s.vaqt + " · " + s.tarif + " · " + xavfsiz(s.tolov) + " · Haydovchi: " + xavfsiz(s.haydovchi) + qoshimcha + "</p>" +
+            "</div>" +
+            "<p class='font-bold text-lg'>" + pul(s.narx) + "</p>" +
+          "</div>";
+      }
+      joy.innerHTML = matn;
+    }
+
+
+    // ----- Tarixni tozalash -----
+    function tarixTozalash() {
+      tarix = [];
+      tarixChiz();
+      saqlash();
+      toast("Tarix tozalandi");
+    }
+
+
+    // ----- Haydovchi daromadi -----
+    function daromadHisoblash() {
+      var soat = document.getElementById("soat").value;
+      var kun = document.getElementById("kun").value;
+
+      document.getElementById("soatYozuv").innerText = soat;
+      document.getElementById("kunYozuv").innerText = kun;
+
+      var haftalik = soat * kun * 45000;
+      document.getElementById("daromad").innerText = pul(haftalik);
+      document.getElementById("daromadOylik").innerText = pul(haftalik * 4);
+    }
+
+
+    // ----- Promokodni nusxalash -----
+    function kodNusxalash() {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText("UZ10")
+          .then(function () { toast("Kod nusxalandi: UZ10"); })
+          .catch(function () { toast("Kod: UZ10"); });
+      } else {
+        toast("Kod: UZ10");
+      }
+    }
+
+
+    // ----- Aloqa formasi -----
+    function aloqaYuborish() {
+      var ism = document.getElementById("aloqaIsm").value.trim();
+      var tel = document.getElementById("aloqaTel").value.trim();
+      var xabar = document.getElementById("aloqaXabar").value.trim();
+
+      if (ism == "" || tel == "" || xabar == "") {
+        toast("Hamma maydonni to'ldiring");
+        return;
+      }
+
+      document.getElementById("aloqaIsm").value = "";
+      document.getElementById("aloqaTel").value = "";
+      document.getElementById("aloqaXabar").value = "";
+      toast("Rahmat, " + ism + "! Xabaringiz yuborildi ✅");
+    }
+
+
+    // ----- Sahifa ochilganda -----
+    yuklash();
+    narxHisoblash();
+    daromadHisoblash();
+    tarixChiz();
+    sevimliChiz();
+  </script>
+
+</body>
+</html>
